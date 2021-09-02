@@ -13,4 +13,9 @@ public class DemoEndpoint {
         boolean value = lib.isStringEmptyOrNull(testString);
         return Boolean.toString(value);
     }
+
+    @GetMapping("/feature/{name}")
+    String sayHiTo(@PathVariable String name) {
+        return "Hi there, " + name;
+    }
 }
