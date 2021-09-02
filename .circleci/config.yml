@@ -79,6 +79,7 @@ jobs:
           name: Build Container
           command: |
             echo "$DOCKER_PASS" | docker login --username $API_USER --password-stdin devweek.jfrog.io
+            gradle bootJar
             docker build -t devweek.jfrog.io/dev-week/api:$JAR_VERSION .
             docker push devweek.jfrog.io/dev-week/api:$JAR_VERSION
       - run:
