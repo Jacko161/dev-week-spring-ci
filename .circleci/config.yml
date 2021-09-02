@@ -47,9 +47,14 @@ jobs:
       # run tests!
       - run:
           name: Build JAR
-          command: gradle bootJar test coveralls
+          command: gradle bootJar test
+      - run:
+          name: Upload codecoverage report
+          when: always
+          command: gradle coveralls
       - run:
           name: Save test results
+          when: always
           command: |
             mkdir -p ~/test-results/junit/
             mkdir -p ~/test-results/jacoco/
@@ -57,8 +62,10 @@ jobs:
             find . -type f -regex ".*/build/reports/jacoco/.*html" -exec cp {} ~/test-results/jacoco/ \;
           when: always
       - store_test_results:
+          when: always
           path: ~/test-results/
       - store_artifacts:
+          when: always
           path: ~/test-results/
       - slack/notify:
           event: fail
