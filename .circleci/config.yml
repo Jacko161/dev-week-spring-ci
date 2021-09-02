@@ -54,7 +54,6 @@ jobs:
           command: gradle coveralls
       - run:
           name: Save test results
-          when: always
           command: |
             mkdir -p ~/test-results/junit/
             mkdir -p ~/test-results/jacoco/
