@@ -1,8 +1,10 @@
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
 version: 2
+orbs:
+  slack: circleci/slack@4.4.4
 jobs:
-  build:
+  build_test:
     docker:
       # specify the version you desire here
       - image: cimg/openjdk:16.0.2
@@ -21,6 +23,16 @@ jobs:
 
     steps:
       - checkout
+      - run:
+          name: Extract Email Address of committer
+          command: |
+            COMMIT_EMAIL=$(git --no-pager log -1 -s --format="%ae")
+            echo "export COMMIT_EMAIL=$COMMIT_EMAIL" >> $BASH_ENV
+      - run:
+          name: Get Slack User ID
+          command: |
+            SLACK_USER_ID=$(curl -H "Authorization: Bearer $SLACK_ACCESS_TOKEN" -d "email=$COMMIT_EMAIL" https://slack.com/api/users.lookupByEmail | jq '.user.id')
+            echo "export SLACK_USER_ID=$SLACK_USER_ID" >> $BASH_ENV
 
       # Download and cache dependencies
       - restore_cache:
@@ -38,3 +50,42 @@ jobs:
 
       # run tests!
       - run: gradle test
+      - slack/notify:
+          event: fail
+          channel: '$SLACK_USER_ID'
+          template: basic_fail_1
+
+  deploy_preproduction:
+    docker:
+          # specify the version you desire here
+          - image: cimg/openjdk:16.0.2
+
+          # Specify service dependencies here if necessary
+          # CircleCI maintains a library of pre-built images
+          # documented at https://circleci.com/docs/2.0/circleci-images/
+          # - image: circleci/postgres:9.4
+
+        working_directory: ~/repo
+    steps:
+    - checkout
+    - run:
+        command: |
+          OUTPUT=$(curl -L --request POST 'https://awx.jfleming.dev/api/v2/job_templates/Deploy API/launch/' --header "Authorization: Bearer $AWX_API_TOKEN" --header 'Content-Type: application/json' --data-raw "{\"extra_vars\": {\"user_email\": \"$COMMIT_EMAIL\"}}")
+          AWX_JOB_ID=$(echo $OUTPUT | jq -r '.id')
+          echo "export AWX_JOB_URL=https://awx.jfleming.dev/#/jobs/playbook/$AWX_JOB_ID/output" >> $BASH_ENV
+
+
+workflows:
+  build_test_deploy:
+      - build_test:
+          context:
+            - slack-secrets
+      - deploy_preproduction:
+          context:
+            - AWX-secrets
+            - slack-secrets
+          filters:
+            branches:
+              only: main
+#     - hold_for_prod:
+#          type: approval
