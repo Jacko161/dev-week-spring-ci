@@ -83,6 +83,7 @@ jobs:
             echo "export AWX_JOB_URL=https://awx.jfleming.dev/#/jobs/playbook/$AWX_JOB_ID/output" >> $BASH_ENV
 workflows:
   build_test_deploy:
+    jobs:
       - build_test:
           context:
            - slack-secrets
