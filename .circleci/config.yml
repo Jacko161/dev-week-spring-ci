@@ -48,6 +48,24 @@ jobs:
       - run:
           name: Build JAR
           command: gradle bootJar test
+      - run:
+          name: Upload codecoverage report
+          when: always
+          command: gradle coveralls
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/test-results/junit/
+            mkdir -p ~/test-results/jacoco/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+            find . -type f -regex ".*/build/reports/jacoco/.*html" -exec cp {} ~/test-results/jacoco/ \;
+          when: always
+      - store_test_results:
+          when: always
+          path: ~/test-results/
+      - store_artifacts:
+          when: always
+          path: ~/test-results/
       - slack/notify:
           event: fail
           channel: '$SLACK_USER_ID'

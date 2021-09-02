@@ -2,6 +2,8 @@ plugins {
 	id 'org.springframework.boot' version '2.5.4'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id 'jacoco'
+	id 'com.github.kt3k.coveralls' version '2.12.0'
 }
 
 group = 'com.instaclustr.jfleming'
@@ -12,6 +14,37 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+}
+
+test {
+	finalizedBy jacocoTestCoverageVerification, jacocoTestReport // report is always generated after tests run
+	jacoco {
+	}
+}
+
+
+jacocoTestReport {
+	dependsOn test // tests are required to run before generating the report
+	reports {
+		xml.required=true // coveralls plugin depends on xml format report
+		html.required=true
+	}
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			element = 'CLASS'
+			excludes = ["com.instaclustr.jfleming.devweek.DevweekApplication"]
+			limit {
+				minimum = 0.95
+			}
+		}
+	}
+}
+
+coveralls {
+	jacocoReportPath 'build/reports/jacoco/test/jacocoTestReport.xml'
 }
 
 repositories {
