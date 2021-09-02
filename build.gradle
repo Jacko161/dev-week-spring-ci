@@ -3,6 +3,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
 	id 'jacoco'
+	id 'com.github.kt3k.coveralls' version '2.12.0'
 }
 
 group = 'com.instaclustr.jfleming'
@@ -20,6 +21,14 @@ test {
 }
 jacocoTestReport {
 	dependsOn test // tests are required to run before generating the report
+	reports {
+		xml.required=true // coveralls plugin depends on xml format report
+		html.required=true
+	}
+}
+
+coveralls {
+	jacocoReportPath 'build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml'
 }
 
 repositories {
