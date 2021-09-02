@@ -98,13 +98,13 @@ workflows:
       - build_test:
           context:
            - slack-secrets
-           - artifactory-secrets
       - deploy_preproduction:
           requires:
             - build_test
           context:
             - AWX-secrets
             - slack-secrets
+            - artifactory-secrets
           filters:
             branches:
               only: main
