@@ -8,7 +8,7 @@ import com.instaclustr.jfleming.Library;
 @RestController
 public class DemoEndpoint {
 
-    private Library library;
+    private final Library library;
 
     public DemoEndpoint(){
         library = new Library();
@@ -20,7 +20,7 @@ public class DemoEndpoint {
         return Boolean.toString(value);
     }
 
-    @GetMapping("/feature/{name}")
+    @GetMapping("/greet/{name}")
     String sayHiTo(@PathVariable String name) {
         return library.greetUser(name);
     }
