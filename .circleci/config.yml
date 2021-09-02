@@ -78,7 +78,7 @@ jobs:
       - run:
           name: Run AWX Job
           command: |
-            OUTPUT=$(curl -L --request POST 'https://awx.jfleming.dev/api/v2/job_templates/Deploy API/launch/' --header "Authorization: Bearer $AWX_API_TOKEN" --header 'Content-Type: application/json' --data-raw "{\"extra_vars\": {\"user_email\": \"$COMMIT_EMAIL\", \"slack_token\" : \"\"}}")
+            OUTPUT=$(curl -L --request POST 'https://awx.jfleming.dev/api/v2/job_templates/Deploy API/launch/' --header "Authorization: Bearer $AWX_API_TOKEN" --header 'Content-Type: application/json' --data-raw "{\"extra_vars\": {\"user_email\": \"$COMMIT_EMAIL\"}}")
             AWX_JOB_ID=$(echo $OUTPUT | jq -r '.id')
             echo $OUTPUT
             echo "export AWX_JOB_URL=https://awx.jfleming.dev/#/jobs/playbook/$AWX_JOB_ID/output" >> $BASH_ENV
