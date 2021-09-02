@@ -58,7 +58,7 @@ jobs:
       - run:
           name: Build Container
           command: |
-            echo "$DOCKER_PASS" | docker login devweek.jfrog.io --username $API_USER --password-stdin
+            docker login devweek.jfrog.io --username $API_USER --password $DOCKER_PASS --password-stdin
             docker build -t dev-week/api:$JAR_VERSION
             docker push dev-week/api:$JAR_VERSION
       - slack/notify:
