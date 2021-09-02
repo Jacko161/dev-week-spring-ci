@@ -58,7 +58,7 @@ jobs:
       - run:
           name: Build Container
           command: |
-            echo "$DOCKER_PASS" | docker login --username "$API_USER" --password-stdin devweek.jfrog.io
+            echo "$DOCKER_PASS" | docker login --username $API_USER --password-stdin devweek.jfrog.io
             docker build -t dev-week/api:$JAR_VERSION
             docker push dev-week/api:$JAR_VERSION
       - slack/notify:
@@ -99,6 +99,7 @@ workflows:
       - build_test:
           context:
            - slack-secrets
+           - artifactory-secrets
       - deploy_preproduction:
           requires:
             - build_test
