@@ -7,15 +7,21 @@ import com.instaclustr.jfleming.Library;
 
 @RestController
 public class DemoEndpoint {
+
+    private Library library;
+
+    public DemoEndpoint(){
+        library = new Library();
+    }
+
     @GetMapping("/{testString}")
     String test(@PathVariable String testString) {
-        Library lib = new Library();
-        boolean value = lib.isStringEmptyOrNull(testString);
+        boolean value = library.isStringEmptyOrNull(testString);
         return Boolean.toString(value);
     }
 
     @GetMapping("/feature/{name}")
     String sayHiTo(@PathVariable String name) {
-        return "Hi there, " + name;
+        return library.greetUser(name);
     }
 }
