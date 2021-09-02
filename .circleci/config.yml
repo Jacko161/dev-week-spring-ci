@@ -50,6 +50,17 @@ jobs:
 
       # run tests!
       - run: gradle test
+      - run:
+          name: Get JAR Version
+          command: |
+            JAR_VERSION=$(gradle printVersion)
+            echo "export JAR_VERSION=$JAR_VERSION" >> $BASH_ENV
+       - run:
+           name: Build Container
+           command: |
+             echo "$DOCKER_PASS" | docker login devweek.jfrog.io --username $API_USER --password-stdin
+             docker build -t dev-week/api:$JAR_VERSION
+             docker push dev-week/api:$JAR_VERSION
       - slack/notify:
           event: fail
           channel: '$SLACK_USER_ID'
