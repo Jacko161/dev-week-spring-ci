@@ -47,7 +47,7 @@ jobs:
       # run tests!
       - run:
           name: Build JAR
-          command: gradle build
+          command: gradle bootJar test
       - setup_remote_docker:
           version: 19.03.13
       - run:
