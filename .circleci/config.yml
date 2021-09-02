@@ -55,6 +55,10 @@ jobs:
             find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
             find . -type f -regex ".*/build/jacoco/.*exec" -exec cp {} ~/test-results/jacoco/ \;
           when: always
+      - store_test_results:
+          path: ~/test-results
+      - store_artifacts:
+          path: ~/test-results/
       - slack/notify:
           event: fail
           channel: '$SLACK_USER_ID'
