@@ -17,13 +17,23 @@ configurations {
 }
 
 test {
-	finalizedBy jacocoTestReport // report is always generated after tests run
+	finalizedBy jacocoTestCoverageVerification, jacocoTestReport // report is always generated after tests run
 }
 jacocoTestReport {
 	dependsOn test // tests are required to run before generating the report
 	reports {
 		xml.required=true // coveralls plugin depends on xml format report
 		html.required=true
+	}
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			limit {
+				minimum = 0.95
+			}
+		}
 	}
 }
 
