@@ -19,15 +19,26 @@ configurations {
 test {
 	finalizedBy jacocoTestCoverageVerification, jacocoTestReport // report is always generated after tests run
 	jacoco {
+		excludes += ["com.instaclustr.jfleming.devweek.DevweekApplication"]
+
 	}
 }
 
 
 jacocoTestReport {
+
 	dependsOn test // tests are required to run before generating the report
 	reports {
 		xml.required=true // coveralls plugin depends on xml format report
 		html.required=true
+	}
+
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it,
+					exclude: ['com/instaclustr/jfleming/devweek/DevweekApplication.class']
+			)
+		}))
 	}
 }
 
