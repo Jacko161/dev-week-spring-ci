@@ -60,7 +60,21 @@ jobs:
        - image: cimg/openjdk:16.0.2
     working_directory: ~/repo
     steps:
-    - checkout
+      - checkout
+      - run:
+          name: Extract Email Address of committer
+          command: |
+            COMMIT_EMAIL=$(git --no-pager log -1 -s --format="%ae")
+            echo "export COMMIT_EMAIL=$COMMIT_EMAIL" >> $BASH_ENV
+      - run:
+          name: Get Slack User ID
+          command: |
+            SLACK_USER_ID=$(curl -H "Authorization: Bearer $SLACK_ACCESS_TOKEN" -d "email=$COMMIT_EMAIL" https://slack.com/api/users.lookupByEmail | jq '.user.id')
+            echo "export SLACK_USER_ID=$SLACK_USER_ID" >> $BASH_ENV
+      - slack/notify:
+          event: fail
+          channel: '$SLACK_USER_ID'
+          template: basic_fail_1
     - run:
         command: |
           OUTPUT=$(curl -L --request POST 'https://awx.jfleming.dev/api/v2/job_templates/Deploy API/launch/' --header "Authorization: Bearer $AWX_API_TOKEN" --header 'Content-Type: application/json' --data-raw "{\"extra_vars\": {\"user_email\": \"$COMMIT_EMAIL\"}}")
@@ -80,5 +94,3 @@ workflows:
           filters:
             branches:
               only: main
-#     - hold_for_prod:
-#          type: approval
