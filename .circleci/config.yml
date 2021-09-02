@@ -33,23 +33,22 @@ jobs:
           command: |
             SLACK_USER_ID=$(curl -H "Authorization: Bearer $SLACK_ACCESS_TOKEN" -d "email=$COMMIT_EMAIL" https://slack.com/api/users.lookupByEmail | jq '.user.id')
             echo "export SLACK_USER_ID=$SLACK_USER_ID" >> $BASH_ENV
-
       # Download and cache dependencies
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "build.gradle" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
-
       - run: gradle dependencies
-
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
-
       # run tests!
       - run: gradle test
+      - setup_remote_docker:
+          version: 19.03.13
+          docker_layer_caching: true
       - run:
           name: Get JAR Version
           command: |
@@ -65,7 +64,6 @@ jobs:
           event: fail
           channel: '$SLACK_USER_ID'
           template: basic_fail_1
-
   deploy_preproduction:
     docker:
        - image: cimg/openjdk:16.0.2
