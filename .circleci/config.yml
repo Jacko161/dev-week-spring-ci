@@ -48,19 +48,6 @@ jobs:
       - run:
           name: Build JAR
           command: gradle bootJar test
-      - setup_remote_docker:
-          version: 19.03.13
-      - run:
-          name: Get JAR Version
-          command: |
-            JAR_VERSION=$(gradle printVersion -q)
-            echo "export JAR_VERSION=$JAR_VERSION" >> $BASH_ENV
-      - run:
-          name: Build Container
-          command: |
-            echo "$DOCKER_PASS" | docker login --username $API_USER --password-stdin devweek.jfrog.io
-            docker build -t devweek.jfrog.io/dev-week/api:$JAR_VERSION .
-            docker push devweek.jfrog.io/dev-week/api:$JAR_VERSION
       - slack/notify:
           event: fail
           channel: '$SLACK_USER_ID'
@@ -81,17 +68,30 @@ jobs:
           command: |
             SLACK_USER_ID=$(curl -H "Authorization: Bearer $SLACK_ACCESS_TOKEN" -d "email=$COMMIT_EMAIL" https://slack.com/api/users.lookupByEmail | jq '.user.id')
             echo "export SLACK_USER_ID=$SLACK_USER_ID" >> $BASH_ENV
+      - setup_remote_docker:
+          version: 19.03.13
+      - run:
+          name: Get JAR Version
+          command: |
+            JAR_VERSION=$(gradle printVersion -q)
+            echo "export JAR_VERSION=$JAR_VERSION" >> $BASH_ENV
+      - run:
+          name: Build Container
+          command: |
+            echo "$DOCKER_PASS" | docker login --username $API_USER --password-stdin devweek.jfrog.io
+            docker build -t devweek.jfrog.io/dev-week/api:$JAR_VERSION .
+            docker push devweek.jfrog.io/dev-week/api:$JAR_VERSION
+      - run:
+          name: Run AWX Job
+          command: |
+            OUTPUT=$(curl -L --request POST 'https://awx.jfleming.dev/api/v2/job_templates/Deploy API/launch/' --header "Authorization: Bearer $AWX_API_TOKEN" --header 'Content-Type: application/json' --data-raw "{\"extra_vars\": {\"version\":\"$JAR_VERSION\", \"user_email\": \"$COMMIT_EMAIL\"}}")
+            AWX_JOB_ID=$(echo $OUTPUT | jq -r '.id')
+            echo "export AWX_JOB_URL=https://awx.jfleming.dev/#/jobs/playbook/$AWX_JOB_ID/output" >> $BASH_ENV
+            echo https://awx.jfleming.dev/#/jobs/playbook/$AWX_JOB_ID/output
       - slack/notify:
           event: fail
           channel: '$SLACK_USER_ID'
           template: basic_fail_1
-      - run:
-          name: Run AWX Job
-          command: |
-            OUTPUT=$(curl -L --request POST 'https://awx.jfleming.dev/api/v2/job_templates/Deploy API/launch/' --header "Authorization: Bearer $AWX_API_TOKEN" --header 'Content-Type: application/json' --data-raw "{\"extra_vars\": {\"user_email\": \"$COMMIT_EMAIL\"}}")
-            AWX_JOB_ID=$(echo $OUTPUT | jq -r '.id')
-            echo "export AWX_JOB_URL=https://awx.jfleming.dev/#/jobs/playbook/$AWX_JOB_ID/output" >> $BASH_ENV
-            echo https://awx.jfleming.dev/#/jobs/playbook/$AWX_JOB_ID/output
 workflows:
   build_test_deploy:
     jobs:
