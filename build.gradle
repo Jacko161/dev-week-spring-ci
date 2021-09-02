@@ -18,7 +18,11 @@ configurations {
 
 test {
 	finalizedBy jacocoTestCoverageVerification, jacocoTestReport // report is always generated after tests run
+	jacoco {
+	}
 }
+
+
 jacocoTestReport {
 	dependsOn test // tests are required to run before generating the report
 	reports {
@@ -30,6 +34,8 @@ jacocoTestReport {
 jacocoTestCoverageVerification {
 	violationRules {
 		rule {
+			element = 'CLASS'
+			excludes = ["com.instaclustr.jfleming.devweek.DevweekApplication"]
 			limit {
 				minimum = 0.95
 			}
