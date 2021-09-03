@@ -6,8 +6,6 @@ plugins {
 	id 'com.github.kt3k.coveralls' version '2.12.0'
 }
 
-group = 'com.instaclustr.jfleming'
-version = '0.0.1'
 sourceCompatibility = '16'
 
 configurations {
@@ -64,17 +62,6 @@ repositories {
 		url "https://devweek.jfrog.io/artifactory/maven-local-libs-release"
 	}
 }
-
-task printVersion {
-	// any code that goes here is part of configuring the task
-	// this code will always get run, even if the task is not executed
-	doLast { // add a task action
-		// any code that goes here is part of executing the task
-		// this code will only get run if and when the task gets executed
-		println project.version
-	}
-}
-
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

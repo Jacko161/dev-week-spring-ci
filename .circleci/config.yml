@@ -89,21 +89,16 @@ jobs:
       - setup_remote_docker:
           version: 19.03.13
       - run:
-          name: Get JAR Version
-          command: |
-            JAR_VERSION=$(gradle printVersion -q)
-            echo "export JAR_VERSION=$JAR_VERSION" >> $BASH_ENV
-      - run:
           name: Build Container
           command: |
             echo "$DOCKER_PASS" | docker login --username $API_USER --password-stdin devweek.jfrog.io
             gradle bootJar
-            docker build -t devweek.jfrog.io/dev-week/api:$JAR_VERSION .
-            docker push devweek.jfrog.io/dev-week/api:$JAR_VERSION
+            docker build -t devweek.jfrog.io/dev-week/api:$CIRCLE_SHA1 .
+            docker push devweek.jfrog.io/dev-week/api:$CIRCLE_SHA1
       - run:
           name: Run AWX Job
           command: |
-            OUTPUT=$(curl -L --request POST 'https://awx.jfleming.dev/api/v2/job_templates/Deploy API/launch/' --header "Authorization: Bearer $AWX_API_TOKEN" --header 'Content-Type: application/json' --data-raw "{\"extra_vars\": {\"version\":\"$JAR_VERSION\", \"user_email\": \"$COMMIT_EMAIL\"}}")
+            OUTPUT=$(curl -L --request POST 'https://awx.jfleming.dev/api/v2/job_templates/Deploy API/launch/' --header "Authorization: Bearer $AWX_API_TOKEN" --header 'Content-Type: application/json' --data-raw "{\"extra_vars\": {\"version\":\"$CIRCLE_SHA1\", \"user_email\": \"$COMMIT_EMAIL\"}}")
             AWX_JOB_ID=$(echo $OUTPUT | jq -r '.id')
             echo "export AWX_JOB_URL=https://awx.jfleming.dev/#/jobs/playbook/$AWX_JOB_ID/output" >> $BASH_ENV
             echo https://awx.jfleming.dev/#/jobs/playbook/$AWX_JOB_ID/output
