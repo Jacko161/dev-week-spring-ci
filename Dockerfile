@@ -1,4 +1,4 @@
-FROM openjdk:16-jdk-alpine
+FROM openjdk:16-jdk-slim-bullseye
 VOLUME /tmp
 COPY build/libs/*.jar app.jar
 
