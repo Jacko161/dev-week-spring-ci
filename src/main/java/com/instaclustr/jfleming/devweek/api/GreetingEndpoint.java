@@ -6,18 +6,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.instaclustr.jfleming.Library;
 
 @RestController
-public class DemoEndpoint {
+public class GreetingEndpoint {
 
     private final Library library;
 
-    public DemoEndpoint(){
+    public GreetingEndpoint(){
         library = new Library();
-    }
-
-    @GetMapping("/{testString}")
-    String test(@PathVariable String testString) {
-        boolean value = library.isStringEmptyOrNull(testString);
-        return Boolean.toString(value);
     }
 
     @GetMapping("/greet/{name}")
