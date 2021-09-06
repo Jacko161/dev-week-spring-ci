@@ -24,4 +24,9 @@ public class DemoEndpoint {
     String sayHiTo(@PathVariable String name) {
         return library.greetUser(name);
     }
+
+    @GetMapping("/goodbye/{name}")
+    String sayByeTo(@PathVariable String name) {
+        return library.byeUser(name);
+    }
 }
