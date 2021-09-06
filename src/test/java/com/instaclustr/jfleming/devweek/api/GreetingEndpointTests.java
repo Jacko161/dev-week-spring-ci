@@ -28,4 +28,15 @@ public class GreetingEndpointTests {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Hi there, " + name));
     }
+
+    @Test
+    public void whenUsernameIsGivenToGoodbye_thenUserIsFarewelled() throws Exception {
+        //given
+        String name = "Patrick";
+
+        mvc.perform(get("/goodbye/" + name)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Goodbye, " + name));
+    }
 }
