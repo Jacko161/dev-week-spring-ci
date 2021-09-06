@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class DemoEndpointTests {
+public class GreetingEndpointTests {
 
     @Autowired
     private MockMvc mvc;
@@ -30,12 +30,13 @@ public class DemoEndpointTests {
     }
 
     @Test
-    public void whenStringIsGivenToTest_thenFalseIsReturned() throws Exception {
-        //Given
-        String testString = "Hello";
+    public void whenUsernameIsGivenToGoodbye_thenUserIsFarewelled() throws Exception {
+        //given
+        String name = "Patrick";
 
-        mvc.perform(get("/"+testString).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/goodbye/" + name)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("false"));
+                .andExpect(content().string("Goodbye, " + name));
     }
 }
