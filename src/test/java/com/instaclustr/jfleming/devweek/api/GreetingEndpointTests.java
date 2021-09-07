@@ -39,4 +39,16 @@ public class GreetingEndpointTests {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Goodbye, " + name));
     }
+
+
+    @Test
+    public void whenUsernameIsGivenToGoodbye_thenUserIsMet() throws Exception {
+        //given
+        String name = "Patrick";
+
+        mvc.perform(get("/meet/" + name)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Hi tehre nice to meet you, " + name));
+    }
 }
