@@ -19,6 +19,11 @@ public class GreetingEndpoint {
         return library.greetUser(name);
     }
 
+    @GetMapping("/meet/{name}")
+    String meetUser(@PathVariable String name) {
+        return "Hi tehre nice to meet you, " + name;
+    }
+
     @GetMapping("/goodbye/{name}")
     String sayByeTo(@PathVariable String name) {
         return library.byeUser(name);
